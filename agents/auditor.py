@@ -77,7 +77,6 @@ def run_audit(url: str) -> dict:
     load_dotenv()
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     page_data = scrape_page(url)
-    page_data = scrape_page(url)
     prompt = build_prompt(page_data)
     response = client.chat.completions.create(
         model="gpt-4o",
