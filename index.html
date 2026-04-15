@@ -1,270 +1,884 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Website Audit Agent — Hans Stewart</title>
-<meta name="description" content="AI-powered website audit. Drop a URL and get instant messaging, SEO, copy, CTA, and conversion analysis."/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<style>
-:root {
-  --bg: #030507;
-  --s1: #080c12;
-  --s2: #0d1117;
-  --s3: #12181f;
-  --b1: rgba(255,255,255,0.06);
-  --b2: rgba(255,255,255,0.10);
-  --b3: rgba(255,255,255,0.16);
-  --teal: #00FFB2;
-  --teal-dim: rgba(0,255,178,0.08);
-  --teal-border: rgba(0,255,178,0.25);
-  --teal-glow: rgba(0,255,178,0.15);
-  --blue: #3D8EFF;
-  --blue-dim: rgba(61,142,255,0.08);
-  --purple: #9D6FFF;
-  --purple-dim: rgba(157,111,255,0.08);
-  --orange: #FF7A3D;
-  --orange-dim: rgba(255,122,61,0.08);
-  --red: #FF5C5C;
-  --text: #DDE1E9;
-  --muted: #6B7280;
-  --mono: "JetBrains Mono", monospace;
-  --sans: "Space Grotesk", sans-serif;
-  --radius: 0.75rem;
-  --radius-sm: 0.5rem;
-  --radius-lg: 1rem;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;min-height:100dvh;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='52' viewBox='0 0 60 52'%3E%3Cpolygon points='30,2 58,17 58,47 30,62 2,47 2,17' fill='none' stroke='rgba(0,255,178,0.04)' stroke-width='1'/%3E%3C/svg%3E");background-size:60px 52px;pointer-events:none;z-index:0}
+  <meta charset="UTF-8" />
+  <title>Website Audit Agent — Hans Stewart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="AI-powered website audit. Drop a URL and get instant messaging, SEO, copy, CTA, and conversion analysis."
+  />
 
-@property --angle{syntax:"<angle>";initial-value:0deg;inherits:false}
-@keyframes spin-border{to{--angle:360deg}}
-@keyframes scan-line{0%{top:-2px;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:calc(100% + 2px);opacity:0}}
-@keyframes fade-up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-@keyframes dot-pulse{0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:1;transform:scale(1)}}
-@keyframes count-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  <!-- Same fonts as portfolio -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
 
-.container{max-width:920px;margin:0 auto;padding:0 1.5rem;position:relative;z-index:1}
+  <style>
+    :root {
+      /* copied from your portfolio tokens */
+      --bg: #0e0c0a;
+      --s1: #141210;
+      --s2: #1a1816;
+      --s3: #1e1b18;
+      --b1: rgba(200,180,160,0.05);
+      --b2: rgba(200,180,160,0.08);
+      --copper: #b87a56;
+      --copper-dim: rgba(184,122,86,0.06);
+      --copper-border: rgba(184,122,86,0.14);
+      --text: #e8e2d9;
+      --muted-text: #8a8278;
+      --faint: #2e2a26;
+      --mono: "Space Mono", monospace;
+      --sans: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(3,5,7,0.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--b1);padding:1rem 0}
-.nav-inner{max-width:920px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{display:flex;align-items:center;gap:0.75rem;text-decoration:none}
-.nav-logo-text{font-family:var(--mono);font-size:0.875rem;font-weight:600;color:var(--text);letter-spacing:0.02em}
-.nav-logo-text .slash{color:var(--teal)}
-.nav-link{font-family:var(--mono);font-size:0.75rem;color:var(--muted);text-decoration:none;transition:color 0.2s;letter-spacing:0.04em}
-.nav-link:hover{color:var(--teal)}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-/* HERO */
-.hero{padding:8rem 0 4rem;text-align:center}
-.hero-tag{display:inline-flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.72rem;font-weight:500;color:var(--teal);background:var(--teal-dim);border:1px solid var(--teal-border);padding:0.32rem 0.85rem;border-radius:999px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1.5rem;animation:fade-up 0.6s ease both}
-.hero-tag::before{content:"";width:6px;height:6px;background:var(--teal);border-radius:50%;animation:dot-pulse 2s ease infinite}
-.hero h1{font-family:var(--mono);font-size:clamp(2rem,5vw,3.25rem);font-weight:700;color:var(--text);line-height:1.1;margin-bottom:1.25rem;animation:fade-up 0.6s ease 0.1s both}
-.hero h1 .accent{color:var(--teal)}
-.hero-sub{font-size:1.05rem;color:var(--muted);max-width:54ch;margin:0 auto 2.5rem;animation:fade-up 0.6s ease 0.2s both}
+    html {
+      scroll-behavior: smooth;
+    }
 
-/* INPUT CARD */
-.input-card{background:linear-gradient(var(--s1),var(--s1)) padding-box,conic-gradient(from var(--angle),transparent 70%,var(--teal) 80%,transparent 90%) border-box;border:1px solid transparent;animation:spin-border 4s linear infinite,fade-up 0.6s ease 0.3s both;border-radius:var(--radius-lg);padding:1.75rem 2rem 1.5rem;margin-bottom:1.25rem}
-.input-label{display:block;font-family:var(--mono);font-size:0.72rem;font-weight:600;color:var(--teal);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.65rem}
-.input-row{display:flex;gap:0.75rem}
-.url-input{flex:1;background:var(--s2);border:1px solid var(--b2);border-radius:var(--radius-sm);padding:0.875rem 1.125rem;font-family:var(--mono);font-size:0.9rem;color:var(--text);outline:none;transition:border-color 0.2s,box-shadow 0.2s;min-width:0}
-.url-input::placeholder{color:var(--muted)}
-.url-input:focus{border-color:var(--teal-border);box-shadow:0 0 0 3px var(--teal-glow)}
-.btn-audit{display:inline-flex;align-items:center;gap:0.5rem;background:var(--teal);color:#030507;font-family:var(--mono);font-size:0.85rem;font-weight:700;letter-spacing:0.05em;padding:0.875rem 1.5rem;border-radius:var(--radius-sm);border:none;cursor:pointer;white-space:nowrap;transition:opacity 0.2s,transform 0.15s;flex-shrink:0}
-.btn-audit:hover{opacity:0.85;transform:translateY(-1px)}
-.btn-audit:active{transform:translateY(0)}
-.btn-audit:disabled{opacity:0.45;cursor:not-allowed;transform:none}
-.input-hint{margin-top:0.65rem;font-size:0.78rem;color:var(--muted);font-family:var(--mono)}
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
 
-/* LOADING */
-.loading-state{display:none;padding:3rem 0;text-align:center;animation:fade-up 0.4s ease}
-.loading-state.active{display:block}
-.scanner-box{position:relative;width:200px;height:120px;margin:0 auto 1.5rem;border:1px solid var(--teal-border);border-radius:var(--radius);background:var(--teal-dim);overflow:hidden}
-.scanner-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,255,178,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,178,0.06) 1px,transparent 1px);background-size:20px 20px}
-.scanner-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--teal),transparent);animation:scan-line 2s ease-in-out infinite;box-shadow:0 0 12px var(--teal)}
-.loading-label{font-family:var(--mono);font-size:0.82rem;color:var(--teal);letter-spacing:0.12em;text-transform:uppercase}
-.loading-dots span{display:inline-block;width:5px;height:5px;background:var(--teal);border-radius:50%;margin:0 2px;animation:dot-pulse 1.2s ease infinite}
-.loading-dots span:nth-child(2){animation-delay:0.2s}
-.loading-dots span:nth-child(3){animation-delay:0.4s}
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: radial-gradient(
+        rgba(255, 255, 255, 0.7) 0.4px,
+        transparent 0.4px
+      );
+      background-size: 8px 8px;
+      mix-blend-mode: soft-light;
+      opacity: 0.06;
+      z-index: 0;
+    }
 
-/* ERROR */
-.error-state{display:none;background:rgba(255,92,92,0.06);border:1px solid rgba(255,92,92,0.22);border-radius:var(--radius);padding:1.125rem 1.5rem;margin-top:1rem;animation:fade-up 0.3s ease}
-.error-state.active{display:flex;align-items:flex-start;gap:0.75rem}
-.error-icon{color:var(--red);font-size:1.1rem;flex-shrink:0;padding-top:1px}
-.error-text{font-family:var(--mono);font-size:0.85rem;color:#ff9999}
-.error-detail{font-size:0.78rem;color:var(--muted);margin-top:0.2rem;font-family:var(--mono)}
+    main,
+    footer {
+      position: relative;
+      z-index: 1;
+    }
 
-/* RESULTS */
-.results{display:none;animation:fade-up 0.5s ease}
-.results.active{display:block}
-.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem}
-.results-title{font-family:var(--mono);font-size:0.72rem;font-weight:600;color:var(--teal);letter-spacing:0.1em;text-transform:uppercase}
-.results-url{font-family:var(--mono);font-size:0.78rem;color:var(--muted);margin-top:0.25rem}
-.results-url span{color:var(--blue)}
-.btn-reset{font-family:var(--mono);font-size:0.75rem;color:var(--muted);background:var(--s1);border:1px solid var(--b2);padding:0.4rem 0.9rem;border-radius:999px;cursor:pointer;letter-spacing:0.05em;transition:color 0.2s,border-color 0.2s}
-.btn-reset:hover{color:var(--text);border-color:var(--b3)}
+    h1, h2, h3 {
+      font-family: var(--sans);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+    }
 
-/* SCORE HERO ROW */
-.score-hero{display:flex;align-items:center;gap:1.25rem;background:var(--s1);border:1px solid var(--b1);border-radius:var(--radius-lg);padding:1.5rem 2rem;margin-bottom:1.25rem;flex-wrap:wrap}
-.grade-block{text-align:center;min-width:80px}
-.grade-letter{font-family:var(--mono);font-size:3.5rem;font-weight:700;line-height:1;animation:count-up 0.5s ease}
-.grade-label{font-family:var(--mono);font-size:0.68rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:0.25rem}
-.grade-A{color:var(--teal)}
-.grade-B{color:#6EE7B7}
-.grade-C{color:var(--orange)}
-.grade-D{color:#FF9A3D}
-.grade-F{color:var(--red)}
-.score-divider{width:1px;height:64px;background:var(--b2);flex-shrink:0}
-.overall-block{flex:1;min-width:160px}
-.overall-num{font-family:var(--mono);font-size:2.5rem;font-weight:700;color:var(--teal);line-height:1;animation:count-up 0.5s ease 0.1s both}
-.overall-label{font-family:var(--mono);font-size:0.68rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:0.2rem}
-.summary-block{flex:2;min-width:200px;border-left:1px solid var(--b2);padding-left:1.5rem}
-.summary-text{font-size:0.9rem;color:var(--text);line-height:1.6}
-@media(max-width:640px){.score-divider,.summary-block{display:none}}
+    .page-shell {
+      max-width: 880px;
+      margin: 32px auto 40px;
+      padding: 0 20px;
+    }
 
-/* CATEGORY SCORES BAR */
-.cat-scores{display:grid;grid-template-columns:repeat(5,1fr);gap:0.75rem;margin-bottom:1.25rem}
-.cat-score-pill{background:var(--s1);border:1px solid var(--b1);border-radius:var(--radius);padding:0.875rem 0.75rem;text-align:center;cursor:pointer;transition:border-color 0.2s,transform 0.2s}
-.cat-score-pill:hover,.cat-score-pill.active{border-color:var(--teal-border);transform:translateY(-2px)}
-.cat-score-pill.active{background:var(--teal-dim)}
-.cat-num{font-family:var(--mono);font-size:1.5rem;font-weight:700;line-height:1;margin-bottom:0.3rem}
-.cat-name{font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;line-height:1.3}
-@media(max-width:640px){.cat-scores{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:380px){.cat-scores{grid-template-columns:1fr}}
+    .header-band {
+      margin-bottom: 22px;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
 
-/* CATEGORY DETAIL */
-.cat-detail{background:var(--s1);border:1px solid var(--b1);border-radius:var(--radius-lg);padding:1.75rem;margin-bottom:1.25rem;display:none}
-.cat-detail.active{display:block;animation:fade-up 0.3s ease}
-.cat-detail-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap}
-.cat-detail-title{font-family:var(--mono);font-size:0.8rem;font-weight:700;color:var(--text);letter-spacing:0.06em;text-transform:uppercase}
-.cat-verdict{font-size:0.9rem;color:var(--muted);margin-top:0.3rem;max-width:60ch}
-.cat-score-badge{font-family:var(--mono);font-size:1.75rem;font-weight:700;flex-shrink:0}
-.detail-cols{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
-@media(max-width:600px){.detail-cols{grid-template-columns:1fr}}
-.detail-col-head{font-family:var(--mono);font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.65rem;padding-bottom:0.5rem;border-bottom:1px solid var(--b1)}
-.col-findings .detail-col-head{color:var(--orange)}
-.col-recs .detail-col-head{color:var(--teal)}
-.detail-list{list-style:none;display:flex;flex-direction:column;gap:0.5rem}
-.detail-list li{display:flex;align-items:flex-start;gap:0.6rem;font-size:0.875rem;color:var(--text);line-height:1.5}
-.detail-list li::before{font-family:var(--mono);font-weight:700;flex-shrink:0;padding-top:1px}
-.col-findings .detail-list li::before{content:"!";color:var(--orange)}
-.col-recs .detail-list li::before{content:"→";color:var(--teal)}
+    .kicker {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted-text);
+      margin-bottom: 10px;
+    }
 
-/* TOP PRIORITIES */
-.priorities-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1.25rem}
-.card-head{font-family:var(--mono);font-size:0.72rem;font-weight:600;color:var(--teal);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--b1)}
-.priority-item{display:flex;align-items:flex-start;gap:1rem;padding:0.875rem 0;border-bottom:1px solid var(--b1)}
-.priority-item:last-child{border-bottom:none;padding-bottom:0}
-.priority-num{font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--teal);background:var(--teal-dim);border:1px solid var(--teal-border);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.priority-text{font-size:0.9rem;color:var(--text);line-height:1.55}
+    .header-title {
+      font-size: clamp(28px, 3.4vw, 40px);
+      max-width: 18ch;
+    }
 
-/* METADATA STRIP */
-.meta-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.75rem;margin-bottom:1.25rem}
-.meta-chip{background:var(--s1);border:1px solid var(--b1);border-radius:var(--radius);padding:0.875rem 1rem}
-.meta-val{font-family:var(--mono);font-size:1.1rem;font-weight:600;color:var(--text);line-height:1}
-.meta-val.warn{color:var(--orange)}
-.meta-val.good{color:var(--teal)}
-.meta-key{font-family:var(--mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-top:0.3rem}
+    .header-copy {
+      max-width: 34ch;
+      font-size: 14px;
+      color: var(--muted-text);
+    }
 
-/* FOOTER */
-footer{margin-top:5rem;padding:2.5rem 0;border-top:1px solid var(--b1);text-align:center;position:relative;z-index:1}
-.footer-text{font-family:var(--mono);font-size:0.72rem;color:var(--muted);letter-spacing:0.04em}
-.footer-text a{color:var(--teal);text-decoration:none}
-.footer-text a:hover{text-decoration:underline}
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
 
-/* RESPONSIVE */
-@media(max-width:640px){
-  .input-row{flex-direction:column}
-  .btn-audit{width:100%;justify-content:center}
-  .hero{padding:6rem 0 3rem}
-}
-</style>
+    .quick-links a {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-text);
+      text-decoration: none;
+      padding-bottom: 2px;
+      position: relative;
+    }
+
+    .quick-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 1px;
+      background: var(--text);
+      transition: width 0.3s ease;
+    }
+
+    .quick-links a:hover {
+      color: var(--text);
+    }
+
+    .quick-links a:hover::after {
+      width: 100%;
+    }
+
+    .audit-shell {
+      border-radius: 24px;
+      border: 1px solid var(--b1);
+      background: linear-gradient(
+        180deg,
+        rgba(20, 18, 16, 0.98),
+        rgba(14, 12, 10, 0.98)
+      );
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.46);
+      overflow: hidden;
+    }
+
+    .audit-top {
+      display: flex;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--b1);
+    }
+
+    .audit-intro,
+    .audit-side {
+      padding: 20px 22px 18px;
+      flex: 1 1 0;
+    }
+
+    .audit-intro {
+      border-right: 1px solid var(--b1);
+      min-width: 260px;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-text);
+      margin-bottom: 10px;
+    }
+
+    .audit-intro h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .audit-intro p {
+      font-size: 14px;
+      color: var(--muted-text);
+      max-width: 40ch;
+    }
+
+    .side-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .side-chip {
+      border-radius: 14px;
+      border: 1px solid var(--b1);
+      background: var(--s1);
+      padding: 10px 10px 9px;
+    }
+
+    .side-chip strong {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-text);
+      margin-bottom: 6px;
+    }
+
+    .side-chip span {
+      display: block;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .input-zone {
+      padding: 18px 22px 16px;
+      border-bottom: 1px solid var(--b1);
+    }
+
+    .input-label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-text);
+      margin-bottom: 8px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .url-input {
+      flex: 1;
+      min-height: 46px;
+      border-radius: 999px;
+      border: 1px solid var(--b2);
+      background: var(--s2);
+      padding: 0 14px;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .url-input::placeholder {
+      color: var(--muted-text);
+    }
+
+    .url-input:focus {
+      border-color: var(--copper-border);
+      box-shadow: 0 0 0 1px var(--copper-dim);
+      background: var(--s3);
+    }
+
+    .btn-audit {
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid var(--copper-border);
+      background: var(--copper);
+      color: var(--bg);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn-audit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-audit:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .btn-audit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .input-hint {
+      margin-top: 7px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted-text);
+    }
+
+    .loading-state {
+      display: none;
+      padding: 16px 22px 6px;
+    }
+
+    .loading-state.active {
+      display: block;
+    }
+
+    .loading-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .loading-pill {
+      width: 90px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid var(--b2);
+      background: var(--s2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-text);
+    }
+
+    .loading-copy {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted-text);
+    }
+
+    .error-state {
+      display: none;
+      margin: 0 22px 16px;
+      padding: 12px 12px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(241, 167, 156, 0.26);
+      background: rgba(241, 167, 156, 0.08);
+    }
+
+    .error-state.active {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .error-icon {
+      font-family: var(--mono);
+      font-size: 14px;
+      color: #f1a79c;
+      transform: translateY(1px);
+    }
+
+    .error-text {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #ffd7cf;
+    }
+
+    .error-detail {
+      margin-top: 3px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted-text);
+    }
+
+    .results {
+      display: none;
+      padding: 18px 22px 20px;
+    }
+
+    .results.active {
+      display: block;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .results-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-text);
+    }
+
+    .results-url {
+      margin-top: 4px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted-text);
+    }
+
+    .results-url span {
+      color: var(--text);
+    }
+
+    .btn-reset {
+      border-radius: 999px;
+      border: 1px solid var(--b1);
+      background: var(--s1);
+      padding: 7px 12px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-text);
+      cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    }
+
+    .btn-reset:hover {
+      color: var(--text);
+      border-color: var(--b2);
+      transform: translateY(-1px);
+    }
+
+    .score-hero {
+      display: grid;
+      grid-template-columns: 110px 1px 150px 1fr;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--b1);
+      background: var(--s1);
+      margin-bottom: 14px;
+    }
+
+    .grade-block {
+      text-align: center;
+    }
+
+    .grade-letter {
+      font-family: var(--mono);
+      font-size: 36px;
+      line-height: 1;
+    }
+
+    .grade-label,
+    .overall-label,
+    .cat-name,
+    .meta-key,
+    .card-head,
+    .detail-col-head {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-text);
+    }
+
+    .grade-A { color: var(--text); }
+    .grade-B { color: #cfd7e6; }
+    .grade-C { color: #e6c48f; }
+    .grade-D { color: #d8a577; }
+    .grade-F { color: #f1a79c; }
+
+    .score-divider {
+      width: 1px;
+      height: 52px;
+      background: var(--b1);
+    }
+
+    .overall-num {
+      font-family: var(--mono);
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .summary-block {
+      border-left: 1px solid var(--b1);
+      padding-left: 14px;
+      min-width: 220px;
+    }
+
+    .summary-text {
+      font-size: 14px;
+      color: var(--muted-text);
+    }
+
+    .cat-scores {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .cat-score-pill {
+      border-radius: 14px;
+      border: 1px solid var(--b1);
+      background: var(--s1);
+      padding: 10px 8px 9px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+    }
+
+    .cat-score-pill:hover,
+    .cat-score-pill.active {
+      border-color: var(--copper-border);
+      background: var(--s2);
+      transform: translateY(-1px);
+    }
+
+    .cat-num {
+      font-family: var(--mono);
+      font-size: 18px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .cat-detail {
+      display: none;
+      margin-bottom: 14px;
+      padding: 18px 16px 14px;
+      border-radius: 18px;
+      border: 1px solid var(--b1);
+      background: var(--s1);
+    }
+
+    .cat-detail.active {
+      display: block;
+    }
+
+    .cat-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .cat-detail-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .cat-verdict {
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--muted-text);
+      max-width: 54ch;
+    }
+
+    .cat-score-badge {
+      font-family: var(--mono);
+      font-size: 20px;
+    }
+
+    .detail-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .detail-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .detail-list li {
+      display: flex;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .detail-list li::before {
+      font-family: var(--mono);
+      font-size: 11px;
+      flex-shrink: 0;
+      transform: translateY(2px);
+    }
+
+    .col-findings .detail-col-head { color: #e6c48f; }
+    .col-recs .detail-col-head { color: var(--text); }
+
+    .col-findings .detail-list li::before { content: "!"; color: #e6c48f; }
+    .col-recs .detail-list li::before { content: "→"; color: var(--text); }
+
+    .priorities-card {
+      margin-bottom: 14px;
+      padding: 16px 14px 10px;
+      border-radius: 18px;
+      border: 1px solid var(--b1);
+      background: var(--s1);
+    }
+
+    .card-head {
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--b1);
+    }
+
+    .priority-item {
+      display: flex;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--b1);
+    }
+
+    .priority-item:last-child {
+      border-bottom: none;
+    }
+
+    .priority-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid var(--b2);
+      background: var(--s2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .priority-text {
+      font-size: 14px;
+      color: var(--muted-text);
+    }
+
+    .meta-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+    }
+
+    .meta-chip {
+      border-radius: 14px;
+      border: 1px solid var(--b1);
+      background: var(--s1);
+      padding: 10px 9px 8px;
+    }
+
+    .meta-val {
+      font-family: var(--mono);
+      font-size: 14px;
+    }
+
+    .meta-val.warn { color: #e6c48f; }
+    .meta-val.good { color: var(--text); }
+
+    footer {
+      max-width: 880px;
+      margin: 0 auto 24px;
+      padding: 0 20px;
+    }
+
+    .footer-rule {
+      height: 1px;
+      background: var(--b1);
+      margin-bottom: 14px;
+    }
+
+    .footer-text {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-text);
+      text-align: center;
+    }
+
+    .footer-text a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .footer-text a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 800px) {
+      .audit-intro {
+        border-right: none;
+        border-bottom: 1px solid var(--b1);
+      }
+      .audit-top {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page-shell {
+        margin-top: 24px;
+      }
+      .input-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-audit {
+        width: 100%;
+      }
+      .score-hero {
+        grid-template-columns: 1fr;
+      }
+      .score-divider,
+      .summary-block {
+        display: none;
+      }
+      .detail-cols {
+        grid-template-columns: 1fr;
+      }
+      .cat-scores {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      .page-shell {
+        padding-inline: 16px;
+      }
+      .audit-intro,
+      .audit-side,
+      .input-zone,
+      .results,
+      .loading-state {
+        padding-inline: 14px;
+      }
+      .error-state {
+        margin-inline: 14px;
+      }
+      .cat-scores {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-
-<nav>
-  <div class="nav-inner">
-    <a href="https://hansstewart.dev" target="_blank" rel="noopener noreferrer" class="nav-logo">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-label="Hans Stewart">
-        <polygon points="12,2 22,8 22,20 12,22 2,20 2,8" stroke="#00FFB2" stroke-width="1.5" fill="rgba(0,255,178,0.06)"/>
-        <polygon points="12,6 18,10 18,18 12,19 6,18 6,10" stroke="#00FFB2" stroke-width="1" fill="none" opacity="0.4"/>
-        <circle cx="12" cy="13" r="2.25" fill="#00FFB2" opacity="0.9"/>
-      </svg>
-      <span class="nav-logo-text">HS <span class="slash">/</span> audit</span>
-    </a>
-    <a href="https://hansstewart.dev" target="_blank" rel="noopener noreferrer" class="nav-link">hansstewart.dev ↗</a>
-  </div>
-</nav>
-
-<main>
-  <section class="hero">
-    <div class="container">
-
-      <div class="hero-tag">GPT-4o Powered Analysis</div>
-
-      <h1>Website <span class="accent">Audit</span><br/>Agent</h1>
-      <p class="hero-sub">Drop any URL. Get an instant AI audit of your messaging, SEO, copy quality, CTA effectiveness, and conversion optimization.</p>
-
-      <!-- INPUT -->
-      <div class="input-card">
-        <label class="input-label" for="url-input">
-          <span style="color:var(--muted)">// </span>Target URL
-        </label>
-        <div class="input-row">
-          <input type="url" id="url-input" class="url-input"
-            placeholder="https://yourwebsite.com"
-            autocomplete="off" spellcheck="false"/>
-          <button class="btn-audit" id="audit-btn" onclick="runAudit()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
-            Run Audit
-          </button>
-        </div>
-        <p class="input-hint">// Powered by GPT-4o &nbsp;·&nbsp; avg response ~20s</p>
+<main class="page-shell">
+  <header class="header-band">
+    <div>
+      <p class="kicker">Website Audit Agent</p>
+      <h1 class="header-title">Instant audits of your website’s messaging and conversion.</h1>
+    </div>
+    <div>
+      <p class="header-copy">
+        Drop in a live URL and get a structured audit of clarity, credibility, SEO fundamentals, and conversion friction.
+      </p>
+      <div class="quick-links" style="margin-top: 8px;">
+        <a href="https://hansstewart.dev" target="_blank" rel="noopener noreferrer">Portfolio ↗</a>
+        <a href="https://hansstewart.github.io/ai-architecture/" target="_blank" rel="noopener noreferrer">Architecture ↗</a>
+        <a href="https://github.com/HansStewart/website-audit-agent" target="_blank" rel="noopener noreferrer">Repo ↗</a>
       </div>
+    </div>
+  </header>
 
-      <!-- ERROR -->
-      <div class="error-state" id="error-state">
-        <span class="error-icon">⚠</span>
-        <div>
-          <div class="error-text" id="error-msg">Audit failed.</div>
-          <div class="error-detail" id="error-detail"></div>
-        </div>
+  <section class="audit-shell">
+    <div class="audit-top">
+      <div class="audit-intro">
+        <div class="section-label">Audit overview</div>
+        <h2>Five lenses: messaging, CTA, SEO, copy, and conversion.</h2>
+        <p>
+          The agent scores the page across key areas, surfaces findings, and returns prioritized recommendations you can implement immediately.
+        </p>
       </div>
-
-      <!-- LOADING -->
-      <div class="loading-state" id="loading-state">
-        <div class="scanner-box">
-          <div class="scanner-grid"></div>
-          <div class="scanner-line"></div>
-        </div>
-        <div class="loading-label">Scanning Target</div>
-        <div class="loading-dots" style="margin-top:0.5rem">
-          <span></span><span></span><span></span>
-        </div>
-        <p style="font-size:0.78rem;color:var(--muted);margin-top:0.75rem;font-family:var(--mono)">Fetching &nbsp;·&nbsp; Analyzing &nbsp;·&nbsp; Generating report</p>
-      </div>
-
-      <!-- RESULTS -->
-      <div class="results" id="results">
-        <div class="results-header">
-          <div>
-            <div class="results-title">// Audit Complete</div>
-            <div class="results-url">Target: <span id="audited-url"></span></div>
+      <aside class="audit-side">
+        <div class="section-label">Output profile</div>
+        <div class="side-grid">
+          <div class="side-chip">
+            <strong>Scope</strong>
+            <span>Single URL analysis</span>
           </div>
-          <button class="btn-reset" onclick="resetAudit()">← New Audit</button>
+          <div class="side-chip">
+            <strong>Output</strong>
+            <span>Scores, findings, recommendations</span>
+          </div>
+          <div class="side-chip">
+            <strong>Categories</strong>
+            <span>Five scoring dimensions</span>
+          </div>
+          <div class="side-chip">
+            <strong>Runtime</strong>
+            <span>Usually around 20 seconds</span>
+          </div>
         </div>
-        <div id="results-content"></div>
-      </div>
+      </aside>
+    </div>
 
+    <div class="input-zone">
+      <label class="input-label" for="url-input">Target URL</label>
+      <div class="input-row">
+        <input
+          type="url"
+          id="url-input"
+          class="url-input"
+          placeholder="https://yourwebsite.com"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button class="btn-audit" id="audit-btn" onclick="runAudit()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+          Run audit
+        </button>
+      </div>
+      <p class="input-hint">// AI-powered website audit for messaging, SEO, copy, CTAs, and conversion</p>
+    </div>
+
+    <div class="loading-state" id="loading-state">
+      <div class="loading-row">
+        <div class="loading-pill">Scanning</div>
+        <p class="loading-copy">
+          Fetching the page, evaluating structure, and generating the audit report…
+        </p>
+      </div>
+    </div>
+
+    <div class="error-state" id="error-state">
+      <span class="error-icon">!</span>
+      <div>
+        <div class="error-text" id="error-msg">Audit failed.</div>
+        <div class="error-detail" id="error-detail"></div>
+      </div>
+    </div>
+
+    <div class="results" id="results">
+      <div class="results-header">
+        <div>
+          <div class="results-title">// Audit complete</div>
+          <div class="results-url">Target: <span id="audited-url"></span></div>
+        </div>
+        <button class="btn-reset" onclick="resetAudit()">← New audit</button>
+      </div>
+      <div id="results-content"></div>
     </div>
   </section>
 </main>
 
 <footer>
+  <div class="footer-rule"></div>
   <div class="footer-text">
     <a href="https://hansstewart.dev" target="_blank" rel="noopener noreferrer">Hans Stewart</a>
     &nbsp;·&nbsp;
@@ -275,223 +889,212 @@ footer{margin-top:5rem;padding:2.5rem 0;border-top:1px solid var(--b1);text-alig
 </footer>
 
 <script>
-const API_URL = "https://website-audit-agent-559169459241.us-central1.run.app/audit";
+  const API_URL = "/audit";
 
-// Category display config — matches EXACT keys from audit_prompt.py
-const CAT_CONFIG = {
-  messaging_clarity:      { label: "Messaging", icon: "◈", color: "var(--teal)" },
-  cta_effectiveness:      { label: "CTA", icon: "→", color: "var(--blue)" },
-  seo_fundamentals:       { label: "SEO", icon: "◎", color: "var(--purple)" },
-  copy_quality:           { label: "Copy", icon: "≡", color: "var(--orange)" },
-  conversion_optimization:{ label: "Conversion", icon: "⚡", color: "var(--teal)" },
-};
+  const CAT_CONFIG = {
+    messaging_clarity:       { label: "Messaging" },
+    cta_effectiveness:       { label: "CTA" },
+    seo_fundamentals:        { label: "SEO" },
+    copy_quality:            { label: "Copy" },
+    conversion_optimization: { label: "Conversion" },
+  };
 
-let activeCategory = null;
+  let activeCategory = null;
 
-function showEl(id){document.getElementById(id).classList.add("active")}
-function hideEl(id){document.getElementById(id).classList.remove("active")}
+  function showEl(id){document.getElementById(id).classList.add("active")}
+  function hideEl(id){document.getElementById(id).classList.remove("active")}
 
-function resetAudit(){
-  hideEl("results"); hideEl("loading-state"); hideEl("error-state");
-  document.getElementById("audit-btn").disabled = false;
-  document.getElementById("url-input").value = "";
-  activeCategory = null;
-  document.getElementById("url-input").focus();
-}
-
-function scoreColor(n){
-  if(n >= 80) return "var(--teal)";
-  if(n >= 60) return "var(--orange)";
-  return "var(--red)";
-}
-
-function gradeClass(g){ return "grade-" + (g || "F"); }
-
-function toggleCategory(key, el){
-  const detailEl = document.getElementById("cat-detail-"+key);
-  if(!detailEl) return;
-
-  // Toggle off if same
-  if(activeCategory === key){
-    detailEl.classList.remove("active");
-    el.classList.remove("active");
+  function resetAudit(){
+    hideEl("results"); hideEl("loading-state"); hideEl("error-state");
+    document.getElementById("audit-btn").disabled = false;
+    document.getElementById("url-input").value = "";
     activeCategory = null;
-    return;
+    document.getElementById("url-input").focus();
   }
 
-  // Hide previous
-  if(activeCategory){
-    const prev = document.getElementById("cat-detail-"+activeCategory);
-    const prevPill = document.querySelector(".cat-score-pill.active");
-    if(prev) prev.classList.remove("active");
-    if(prevPill) prevPill.classList.remove("active");
+  function scoreColor(n){
+    if(n >= 80) return "var(--text)";
+    if(n >= 60) return "#e6c48f";
+    return "#f1a79c";
   }
 
-  detailEl.classList.add("active");
-  el.classList.add("active");
-  activeCategory = key;
-  detailEl.scrollIntoView({behavior:"smooth", block:"nearest"});
-}
+  function gradeClass(g){ return "grade-" + (g || "F"); }
 
-function renderResults(data, url){
-  document.getElementById("audited-url").textContent = url;
-
-  const overall = data.overall_score || 0;
-  const grade = data.grade || "F";
-  const summary = data.summary || "";
-  const categories = data.categories || {};
-  const priorities = data.top_priorities || [];
-  const meta = data.metadata || {};
-
-  let html = "";
-
-  // SCORE HERO
-  html += `<div class="score-hero">
-    <div class="grade-block">
-      <div class="grade-letter ${gradeClass(grade)}">${grade}</div>
-      <div class="grade-label">Grade</div>
-    </div>
-    <div class="score-divider"></div>
-    <div class="overall-block">
-      <div class="overall-num" style="color:${scoreColor(overall)}">${overall}</div>
-      <div class="overall-label">Overall Score</div>
-    </div>
-    <div class="summary-block">
-      <div class="summary-text">${summary}</div>
-    </div>
-  </div>`;
-
-  // CATEGORY SCORE PILLS
-  html += `<div class="cat-scores">`;
-  for(const [key, cfg] of Object.entries(CAT_CONFIG)){
-    const cat = categories[key];
-    if(!cat) continue;
-    const score = cat.score || 0;
-    html += `<div class="cat-score-pill" id="pill-${key}" onclick="toggleCategory('${key}', this)">
-      <div class="cat-num" style="color:${scoreColor(score)}">${score}</div>
-      <div class="cat-name">${cfg.label}</div>
-    </div>`;
-  }
-  html += `</div>`;
-
-  // CATEGORY DETAIL PANELS (hidden by default, toggled by pills)
-  for(const [key, cfg] of Object.entries(CAT_CONFIG)){
-    const cat = categories[key];
-    if(!cat) continue;
-    const score = cat.score || 0;
-    const verdict = cat.verdict || "";
-    const findings = Array.isArray(cat.findings) ? cat.findings : [];
-    const recs = Array.isArray(cat.recommendations) ? cat.recommendations : [];
-    const fullName = key.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
-
-    html += `<div class="cat-detail" id="cat-detail-${key}">
-      <div class="cat-detail-header">
-        <div>
-          <div class="cat-detail-title">${fullName}</div>
-          <div class="cat-verdict">${verdict}</div>
-        </div>
-        <div class="cat-score-badge" style="color:${scoreColor(score)}">${score}</div>
-      </div>
-      <div class="detail-cols">
-        <div class="col-findings">
-          <div class="detail-col-head">Findings</div>
-          <ul class="detail-list">
-            ${findings.map(f=>`<li>${f}</li>`).join("")}
-          </ul>
-        </div>
-        <div class="col-recs">
-          <div class="detail-col-head">Recommendations</div>
-          <ul class="detail-list">
-            ${recs.map(r=>`<li>${r}</li>`).join("")}
-          </ul>
-        </div>
-      </div>
-    </div>`;
-  }
-
-  // TOP PRIORITIES
-  if(priorities.length > 0){
-    html += `<div class="priorities-card">
-      <div class="card-head">// Top Priorities</div>`;
-    priorities.forEach((p, i) => {
-      html += `<div class="priority-item">
-        <div class="priority-num">${i+1}</div>
-        <div class="priority-text">${p}</div>
-      </div>`;
-    });
-    html += `</div>`;
-  }
-
-  // METADATA STRIP
-  if(Object.keys(meta).length > 0){
-    const metaItems = [
-      { key:"title",          label:"Page Title",         val: meta.title ? `"${meta.title.substring(0,28)}${meta.title.length>28?'…':''}"` : "Missing", warn: !meta.title },
-      { key:"meta_desc",      label:"Meta Description",   val: meta.meta_description ? "Present" : "Missing", warn: !meta.meta_description, good: !!meta.meta_description },
-      { key:"images",         label:"Total Images",       val: meta.total_images ?? "—", warn: false },
-      { key:"alt_missing",    label:"Missing Alt Text",   val: meta.images_without_alt ?? "—", warn: (meta.images_without_alt||0) > 0 },
-      { key:"forms",          label:"Forms Detected",     val: meta.forms_detected ?? "—", warn: false },
-      { key:"social",         label:"Social Signals",     val: meta.social_proof_signals ?? "—", warn: false, good: (meta.social_proof_signals||0) > 3 },
-    ];
-    html += `<div class="meta-strip">`;
-    for(const item of metaItems){
-      const cls = item.warn ? " warn" : item.good ? " good" : "";
-      html += `<div class="meta-chip">
-        <div class="meta-val${cls}">${item.val}</div>
-        <div class="meta-key">${item.label}</div>
-      </div>`;
-    }
-    html += `</div>`;
-  }
-
-  document.getElementById("results-content").innerHTML = html;
-}
-
-async function runAudit(){
-  const input = document.getElementById("url-input");
-  let url = input.value.trim();
-  if(!url){ input.focus(); return; }
-  if(!url.startsWith("http://") && !url.startsWith("https://")){
-    url = "https://" + url;
-    input.value = url;
-  }
-
-  hideEl("error-state"); hideEl("results");
-  showEl("loading-state");
-  document.getElementById("audit-btn").disabled = true;
-  activeCategory = null;
-
-  try{
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url })
-    });
-    const data = await res.json();
-    hideEl("loading-state");
-
-    if(!res.ok){
-      document.getElementById("error-msg").textContent = data.error || "Audit failed.";
-      document.getElementById("error-detail").textContent = data.detail || "";
-      showEl("error-state");
-      document.getElementById("audit-btn").disabled = false;
+  function toggleCategory(key, el){
+    const detailEl = document.getElementById("cat-detail-"+key);
+    if(!detailEl) return;
+    if(activeCategory === key){
+      detailEl.classList.remove("active");
+      el.classList.remove("active");
+      activeCategory = null;
       return;
     }
-
-    renderResults(data, url);
-    showEl("results");
-
-  } catch(err){
-    hideEl("loading-state");
-    document.getElementById("error-msg").textContent = "Could not reach the audit server.";
-    document.getElementById("error-detail").textContent = err.message;
-    showEl("error-state");
-    document.getElementById("audit-btn").disabled = false;
+    if(activeCategory){
+      const prev = document.getElementById("cat-detail-"+activeCategory);
+      const prevPill = document.querySelector(".cat-score-pill.active");
+      if(prev) prev.classList.remove("active");
+      if(prevPill) prevPill.classList.remove("active");
+    }
+    detailEl.classList.add("active");
+    el.classList.add("active");
+    activeCategory = key;
+    detailEl.scrollIntoView({behavior:"smooth", block:"nearest"});
   }
-}
 
-document.getElementById("url-input").addEventListener("keydown", e => {
-  if(e.key === "Enter") runAudit();
-});
+  function renderResults(data, url){
+    document.getElementById("audited-url").textContent = url;
+
+    const overall = data.overall_score || 0;
+    const grade = data.grade || "F";
+    const summary = data.summary || "";
+    const categories = data.categories || {};
+    const priorities = data.top_priorities || [];
+    const meta = data.metadata || {};
+
+    let html = "";
+
+    html += `<div class="score-hero">
+      <div class="grade-block">
+        <div class="grade-letter ${gradeClass(grade)}">${grade}</div>
+        <div class="grade-label">Grade</div>
+      </div>
+      <div class="score-divider"></div>
+      <div class="overall-block">
+        <div class="overall-num" style="color:${scoreColor(overall)}">${overall}</div>
+        <div class="overall-label">Overall score</div>
+      </div>
+      <div class="summary-block">
+        <div class="summary-text">${summary}</div>
+      </div>
+    </div>`;
+
+    html += `<div class="cat-scores">`;
+    for(const [key, cfg] of Object.entries(CAT_CONFIG)){
+      const cat = categories[key];
+      if(!cat) continue;
+      const score = cat.score || 0;
+      html += `<div class="cat-score-pill" id="pill-${key}" onclick="toggleCategory('${key}', this)">
+        <div class="cat-num" style="color:${scoreColor(score)}">${score}</div>
+        <div class="cat-name">${cfg.label}</div>
+      </div>`;
+    }
+    html += `</div>`;
+
+    for(const [key, cfg] of Object.entries(CAT_CONFIG)){
+      const cat = categories[key];
+      if(!cat) continue;
+      const score = cat.score || 0;
+      const verdict = cat.verdict || "";
+      const findings = Array.isArray(cat.findings) ? cat.findings : [];
+      const recs = Array.isArray(cat.recommendations) ? cat.recommendations : [];
+      const fullName = key.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
+
+      html += `<div class="cat-detail" id="cat-detail-${key}">
+        <div class="cat-detail-header">
+          <div>
+            <div class="cat-detail-title">${fullName}</div>
+            <div class="cat-verdict">${verdict}</div>
+          </div>
+          <div class="cat-score-badge" style="color:${scoreColor(score)}">${score}</div>
+        </div>
+        <div class="detail-cols">
+          <div class="col-findings">
+            <div class="detail-col-head">Findings</div>
+            <ul class="detail-list">
+              ${findings.map(f=>`<li>${f}</li>`).join("")}
+            </ul>
+          </div>
+          <div class="col-recs">
+            <div class="detail-col-head">Recommendations</div>
+            <ul class="detail-list">
+              ${recs.map(r=>`<li>${r}</li>`).join("")}
+            </ul>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    if(priorities.length > 0){
+      html += `<div class="priorities-card">
+        <div class="card-head">// Top priorities</div>`;
+      priorities.forEach((p, i) => {
+        html += `<div class="priority-item">
+          <div class="priority-num">${i+1}</div>
+          <div class="priority-text">${p}</div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+
+    if(Object.keys(meta).length > 0){
+      const metaItems = [
+        { key:"title",       label:"Page title",       val: meta.title ? `"${meta.title.substring(0,28)}${meta.title.length>28?'…':''}"` : "Missing", warn: !meta.title },
+        { key:"meta_desc",   label:"Meta description", val: meta.meta_description ? "Present" : "Missing", warn: !meta.meta_description, good: !!meta.meta_description },
+        { key:"images",      label:"Total images",     val: meta.total_images ?? "—", warn: false },
+        { key:"alt_missing", label:"Missing alt text", val: meta.images_without_alt ?? "—", warn: (meta.images_without_alt||0) > 0 },
+        { key:"forms",       label:"Forms detected",   val: meta.forms_detected ?? "—", warn: false },
+        { key:"social",      label:"Social signals",   val: meta.social_proof_signals ?? "—", warn: false, good: (meta.social_proof_signals||0) > 3 },
+      ];
+      html += `<div class="meta-strip">`;
+      for(const item of metaItems){
+        const cls = item.warn ? " warn" : item.good ? " good" : "";
+        html += `<div class="meta-chip">
+          <div class="meta-val${cls}">${item.val}</div>
+          <div class="meta-key">${item.label}</div>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+
+    document.getElementById("results-content").innerHTML = html;
+  }
+
+  async function runAudit(){
+    const input = document.getElementById("url-input");
+    let url = input.value.trim();
+    if(!url){ input.focus(); return; }
+    if(!url.startsWith("http://") && !url.startsWith("https://")){
+      url = "https://" + url;
+      input.value = url;
+    }
+
+    hideEl("error-state"); hideEl("results");
+    showEl("loading-state");
+    document.getElementById("audit-btn").disabled = true;
+    activeCategory = null;
+
+    try{
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url })
+      });
+      const data = await res.json();
+      hideEl("loading-state");
+
+      if(!res.ok){
+        document.getElementById("error-msg").textContent = data.error || "Audit failed.";
+        document.getElementById("error-detail").textContent = data.detail || "";
+        showEl("error-state");
+        document.getElementById("audit-btn").disabled = false;
+        return;
+      }
+
+      renderResults(data, url);
+      showEl("results");
+      document.getElementById("audit-btn").disabled = false;
+    } catch(err){
+      hideEl("loading-state");
+      document.getElementById("error-msg").textContent = "Could not reach the audit server.";
+      document.getElementById("error-detail").textContent = err.message;
+      showEl("error-state");
+      document.getElementById("audit-btn").disabled = false;
+    }
+  }
+
+  document.getElementById("url-input").addEventListener("keydown", e => {
+    if(e.key === "Enter") runAudit();
+  });
 </script>
 </body>
 </html>
